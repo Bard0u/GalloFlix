@@ -68,7 +68,7 @@ public class AppDbContext : IdentityDbContext
 
         #endregion
 
-        #region  Many to Many- MovieGenre
+        #region Many to Many - MovieGenre
         // Definição de Chave Primaria Composta
         builder.Entity<MovieGenre>().HasKey(
             mg => new { mg.MovieId, mg.GenreId }
@@ -87,6 +87,7 @@ public class AppDbContext : IdentityDbContext
         #endregion
 
         #region Many to Many - MovieRating
+        
         builder.Entity<MovieRating>().HasKey(
             mr => new { mr.MovieId, mr.UserId }
         );
@@ -102,6 +103,8 @@ public class AppDbContext : IdentityDbContext
         .HasForeignKey(mr => mr.UserId);
 
         #endregion
+
+        
     }
 
 }
