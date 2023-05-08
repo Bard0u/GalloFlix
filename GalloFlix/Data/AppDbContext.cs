@@ -23,6 +23,8 @@ public class AppDbContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        AppDbSeed appDbSeed = new(builder);
+
         #region personalização do Identity
         builder.Entity<IdentityUser>(b =>
         {
