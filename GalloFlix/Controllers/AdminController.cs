@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace GalloFlix.Controllers
-{
+namespace GalloFlix.Controllers;
+
     [Authorize(Roles = "Administrador")]
     public class AdminController : Controller
     {
@@ -25,4 +25,3 @@ namespace GalloFlix.Controllers
             return View("Error!");
         }
     }
-}

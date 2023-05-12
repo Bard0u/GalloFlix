@@ -20,3 +20,6 @@ dotnet tool install --global dotnet ef (instalar)
 dotnet ef migrations add criar-banco (criar)
 
 dotnet ef database update (migrar)
+
+{certificado dotnet}
+dotnet dev-certs https --trust
