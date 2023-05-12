@@ -28,7 +28,7 @@ public class AccountController : Controller
 
     [HttpPost]
     [AllowAnonymous]
-    public IActionResult Login(string usuario, string senha)
+    public IActionResult Login()
     {
         return View();
     }
