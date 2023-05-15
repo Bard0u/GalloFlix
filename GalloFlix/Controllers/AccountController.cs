@@ -1,4 +1,7 @@
+using GalloFlix.DataTransferObjects;
+using GalloFlix.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -9,7 +12,13 @@ public class AccountController : Controller
 {
     private readonly ILogger<AccountController> _logger;
 
-    public AccountController(ILogger<AccountController> logger)
+    private readonly SignInManager<AppUser> _signInManager;
+
+    private readonly UserManager<AppUser> _userManager;
+
+    public AccountController(ILogger<AccountController> logger,
+    SignInManager<AppUser> signInManager,
+    UserManager<AppUser>userManager)
     {
         _logger = logger;
     }
@@ -18,18 +27,27 @@ public class AccountController : Controller
     {
         return View();
     }
+    
+ 
 
-    [HttpGet]
+  [HttpGet]
     [AllowAnonymous]
     public IActionResult Login(string returnUrl)
     {
-        return View();
+        LoginDto loginDto = new();
+        loginDto.ReturnUrl = returnUrl ?? Url.Content("~/");
+        return View(loginDto);
     }
 
     [HttpPost]
     [AllowAnonymous]
-    public IActionResult Login()
+    public IActionResult Login(LoginDto login)
     {
-        return View();
+       if (ModelState.IsValid)
+        {
+            return LocalRedirect(login.ReturnUrl);
+        }
+        return View(login);
     }
+
 }
