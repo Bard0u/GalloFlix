@@ -30,7 +30,7 @@ public class AccountController : Controller
     
  
 
-  [HttpGet]
+    [HttpGet]
     [AllowAnonymous]
     public IActionResult Login(string returnUrl)
     {
@@ -41,11 +41,25 @@ public class AccountController : Controller
 
     [HttpPost]
     [AllowAnonymous]
-    public IActionResult Login(LoginDto login)
+    public async Task<IActionResult> Login(LoginDto login)
     {
        if (ModelState.IsValid)
         {
-            return LocalRedirect(login.ReturnUrl);
+            var result = await _signInManager.PasswordSignInAsync(
+                login.Email, login.Password, login.RememberMe, true
+            );
+            if(result.Succeeded)
+            {
+                _logger.LogInformation($"Usuario {login.Email} acessou o sistema");
+                return LocalRedirect(login.ReturnUrl);
+            }
+            if(result.IsLockedOut)
+            {
+                _logger.LogWarning($"Usuario {login.Email} está bloqueado");
+                return RedirectToAction("Lockout");
+            }
+            ModelState.AddModelError("login","Usuário e/ou Senha Inválidos!!!");
+
         }
         return View(login);
 
