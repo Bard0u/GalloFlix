@@ -82,13 +82,26 @@ public class AccountController : Controller
         _logger.LogInformation($"Usuario {ClaimTypes.Email} saiu da conta");
         await _signInManager.SignOutAsync();
         return RedirectToAction("Index", "Home");
-    }
 
+    }
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Register()
     {
+      
         return View();
+    }
+
+
+    [HttpPost]
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(RegisterDto register)
+    {
+        if(ModelState.IsValid)
+        {
+            
+        }
+        return View(register);
     }
 
     private bool IsValidEmail(string email)
