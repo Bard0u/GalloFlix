@@ -1,11 +1,13 @@
 using System.Net.Mail;
 using System.Security.Claims;
+using System.Text;
 using GalloFlix.DataTransferObjects;
 using GalloFlix.Models;
+using GalloFlix.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace GalloFlix.Controllers;
 
@@ -17,22 +19,29 @@ public class AccountController : Controller
     private readonly SignInManager<AppUser> _signInManager;
 
     private readonly UserManager<AppUser> _userManager;
+    private readonly IUserStore<AppUser> _userStore;
+    private readonly IUserEmailStore<AppUser> _emailStore;
+    private readonly IEmailSender _emailSender;
 
     public AccountController(ILogger<AccountController> logger,
     SignInManager<AppUser> signInManager,
-    UserManager<AppUser> userManager)
+    UserManager<AppUser> userManager, IUserStore<AppUser> userStore,
+    IEmailSender emailSender)
     {
         _logger = logger;
         _signInManager = signInManager;
         _userManager = userManager;
+        _userStore = userStore;
+        _emailStore = (IUserEmailStore<AppUser>)_userStore;
+        _emailSender = emailSender;
     }
 
     public IActionResult Index()
     {
         return View();
     }
-    
- 
+
+
 
     [HttpGet]
     [AllowAnonymous]
@@ -47,7 +56,7 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginDto login)
     {
-       if (ModelState.IsValid)
+        if (ModelState.IsValid)
         {
             string userName = login.Email;
             if (IsValidEmail(login.Email))
@@ -60,17 +69,17 @@ public class AccountController : Controller
             var result = await _signInManager.PasswordSignInAsync(
                 userName, login.Password, login.RememberMe, true
             );
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 _logger.LogInformation($"Usuario {login.Email} acessou o sistema");
                 return LocalRedirect(login.ReturnUrl);
             }
-            if(result.IsLockedOut)
+            if (result.IsLockedOut)
             {
                 _logger.LogWarning($"Usuario {login.Email} está bloqueado");
                 return RedirectToAction("Lockout");
             }
-            ModelState.AddModelError("login","Usuário e/ou Senha Inválidos!!!");
+            ModelState.AddModelError("login", "Usuário e/ou Senha Inválidos!!!");
 
         }
         return View(login);
@@ -88,7 +97,7 @@ public class AccountController : Controller
     [AllowAnonymous]
     public IActionResult Register()
     {
-      
+
         return View();
     }
 
@@ -97,24 +106,45 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterDto register)
     {
-        if(ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            
+            var user = Activator.CreateInstance<AppUser>();
+
+            user.Name = register.Name;
+            user.DateOfBirth = register.DateOfBirth;
+            user.Email = register.Email;
+
+            await _userStore.SetUserNameAsync(user, register.Email, CancellationToken.None);
+            await _emailStore.SetUserNameAsync(user, register.Email, CancellationToken.None);
+
+            var result = await _userManager.CreateAsync(user, register.Password);
+
+            if(result.Succeeded)
+            {
+                _logger.LogInformation($"Novo usuario registrado com email {user.Email}");
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Action(
+                    "ConfirmEmail", "Account", new { userId = userId, code = code},
+                    protocol: Request.Scheme
+                );
+            }
         }
         return View(register);
     }
 
     private bool IsValidEmail(string email)
     {
-       try
-       {
-           MailAddress m = new(email);
-           return true;
-       }
-       catch (FormatException)
-       {
-           return false;
-       } 
+        try
+        {
+            MailAddress m = new(email);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 
 }
