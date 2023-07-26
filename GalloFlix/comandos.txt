@@ -15,7 +15,7 @@ dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 6
 
 
 >MIGRATIONS<
-dotnet tool install --global dotnet ef (instalar)
+dotnet tool install --global dotnet-ef (instalar)
 
 dotnet ef migrations add criar-banco (criar)
 
