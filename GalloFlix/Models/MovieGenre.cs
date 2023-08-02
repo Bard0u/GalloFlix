@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GalloFlix.Models;
-
 [Table("MovieGenre")]
 public class MovieGenre
 {
