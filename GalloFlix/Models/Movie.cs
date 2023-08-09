@@ -46,6 +46,11 @@ public class Movie
     public string HourDuration { get {
         return TimeSpan.FromMinutes(Duration) .ToString(@"%h'h 'mm'min'");
     }}
+    [NotMapped]
+    [Display(Name = "Classificação Etária")]
+    public string Classification { get {
+        return AgeRating == 0 ? "Livre" : AgeRating + " anos";
+    } }
 
     public ICollection<MovieComment> Comments { get; set; }
     public ICollection<MovieGenre> Genres { get; set; }

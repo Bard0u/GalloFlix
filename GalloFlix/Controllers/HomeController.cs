@@ -22,6 +22,15 @@ public class HomeController : Controller
         var movies = _context.Movies.Include(m => m.Genres).ThenInclude(g => g.Genre).ToList();
         return View(movies);
     }
+     public IActionResult Movie(int? id)
+    {
+        var movie = _context.Movies
+            .Where(m => m.Id == id)
+            .Include(m => m.Genres)
+            .ThenInclude(g => g.Genre)
+            .SingleOrDefault();
+        return View(movie);
+    }
 
     public IActionResult Privacy()
     {

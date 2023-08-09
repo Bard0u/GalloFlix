@@ -59,7 +59,7 @@
 
         if (replace) {
             container.empty();
-            error.removeClass("input-validation-error").appendTo(container);
+            error.removeClass("is-invalid").appendTo(container);
         }
         else {
             error.hide();
